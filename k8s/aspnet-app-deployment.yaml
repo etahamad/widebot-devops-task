@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aspnet-app
+  
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aspnet-app-deployment
+  namespace: aspnet-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aspnet-app
+  template:
+    metadata:
+      labels:
+        app: aspnet-app
+    spec:
+      containers:
+      - name: aspnet-app
+        image: etahamad/apsnet-mssql:0.0.2
+        resources:
+          requests:
+            cpu: "100m" # Request 0.1 CPU cores
+            memory: "100Mi" # Request 100 MiB memory
+          limits:
+            cpu: "500m" # Limit to 0.5 CPU cores
+            memory: "500Mi" # Limit to 500 MiB memory
+        ports:
+        - containerPort: 443
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: MSSQL_SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql-secret
+              key: sa-password
+      - name: redis-container
+        image: redis:latest
+        resources:
+          requests:
+            cpu: "100m" # Request 0.1 CPU cores
+            memory: "100Mi" # Request 100 MiB memory
+          limits:
+            cpu: "500m" # Limit to 0.5 CPU cores
+            memory: "500Mi" # Limit to 500 MiB memory
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aspnet-app
+  namespace: aspnet-app
+spec:
+  selector:
+    app: aspnet-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+  selector:
+    app: aspnet-app
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aspnet-app-ingress
+  namespace: aspnet-app
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:362884572950:certificate/7a643a73-91b3-4627-b7b7-bb48403e4d46
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io.ssl-redirect: '443'
+    alb.ingress.kubernetes.io/scheme: internet-facing
+spec:
+  rules:
+  - host: webapp-etahamad.space
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: aspnet-app
+            port:
+              number: 80
