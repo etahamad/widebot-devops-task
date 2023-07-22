@@ -290,3 +290,6 @@ Apply the updated manifests to deploy the Redis container and the ASP.NET Core w
 
 
 With these changes, out ASP.NET Core web application will now use Redis as a caching layer, which can significantly improve the application's performance by reducing the need to access the database frequently for certain data. Redis caching helps store and retrieve data quickly, resulting in faster response times for out application.
+
+## AWS Diagram
+![diagram](https://github.com/etahamad/widebot-devops-task/assets/53538887/0a4e3c1e-52b7-4345-b2be-57f25a770f14)
