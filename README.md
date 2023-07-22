@@ -138,7 +138,6 @@ Step 6: Expose Kubernetes Service to the domain:
 Run the following command to get the details of your Kubernetes Service:
 
 ```bash
-Copy code
 kubectl get svc -n aspnet-app
 ```
 Look for the Service with the appropriate name that corresponds to your web app.
