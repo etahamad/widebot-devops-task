@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mssql-pv
+spec:
+  capacity:
+    storage: 10Gi  # Adjust the size based on your requirements.
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: aws-ebs  # This should match your AWS EBS storage class name.
+  awsElasticBlockStore:
+    volumeID: <AWS_EBS_VOLUME_ID>  # Replace with the actual AWS EBS volume ID.
