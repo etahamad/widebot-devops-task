@@ -134,8 +134,28 @@ Step 5: Apply the updated manifests
 
 Apply the updated Deployment and Service YAML files:
 
+Step 6: Expose Kubernetes Service to the domain:
+Run the following command to get the details of your Kubernetes Service:
 
-Now, the ASP.NET Core web application will be accessible over HTTPS at out configured domain name (`https://out-domain.com`). The LoadBalancer will distribute traffic across instances of the web application, providing a scalable and highly available setup. The SSL certificate ensures secure communication between clients and the web application.
+```bash
+Copy code
+kubectl get svc -n aspnet-app
+```
+Look for the Service with the appropriate name that corresponds to your web app.
+Note down the external IP or hostname of the Service. This IP/hostname is what you'll use for the CNAME record in Cloudflare.
+
+Then update Cloudflare DNS Record:
+Now that you have obtained the external IP or hostname of your Kubernetes Service, you can update the existing CNAME record in Cloudflare's DNS settings.
+
+In Cloudflare, navigate to your domain's DNS settings, and find the CNAME record you previously added (e.g., "app").
+Update the "Target" field with the new external IP or hostname of your Kubernetes Service.
+The updated CNAME record should look like this:
+
+| Type  | Name      | Content                         | TTL  | Status |
+|-------|-----------|---------------------------------|------|--------|
+| CNAME | app       | your-kubernetes-svc-hostname    | Auto | DNS Only |
+
+Now, the ASP.NET Core web application will be accessible over HTTPS at out configured domain name (`https://app.domain.com`). The LoadBalancer will distribute traffic across instances of the web application, providing a scalable and highly available setup. The SSL certificate ensures secure communication between clients and the web application.
 
 
 ## integrate redis to the app
