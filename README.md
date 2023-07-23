@@ -120,7 +120,7 @@ Make sure to check the "Actions" tab in out GitHub repository to see the status 
 ## Cleanup
 
 To clean up out AWS resources, navigate to the `terraform/` directory and destroy the Terraform resources (this takes 20m):
-
+> Make sure you delete the loadbalancer that has been created by kubernetes manaually or else terraform destroy will loop.
 ```bash
 terraform destroy --auto-approve
 ```
