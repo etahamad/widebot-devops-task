@@ -11,7 +11,7 @@ metadata:
   name: aspnet-app-deployment
   namespace: aspnet-app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: aspnet-app
@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: aspnet-app
-        image: etahamad/apsnet-mssql:0.0.2
+        image: etahamad/apsnet-mssql:0.0.3
         resources:
           requests:
             cpu: "100m" # Request 0.1 CPU cores
@@ -44,11 +44,11 @@ spec:
         image: redis:latest
         resources:
           requests:
-            cpu: "100m" # Request 0.1 CPU cores
-            memory: "100Mi" # Request 100 MiB memory
+            cpu: "100m"
+            memory: "100Mi" 
           limits:
-            cpu: "500m" # Limit to 0.5 CPU cores
-            memory: "500Mi" # Limit to 500 MiB memory
+            cpu: "500m"
+            memory: "500Mi"
         ports:
         - containerPort: 6379
 ---
@@ -61,12 +61,15 @@ spec:
   selector:
     app: aspnet-app
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 80
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
   type: LoadBalancer
-  selector:
-    app: aspnet-app
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -75,7 +78,7 @@ metadata:
   name: aspnet-app-ingress
   namespace: aspnet-app
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    spec.ingressClassName: alb
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:362884572950:certificate/7a643a73-91b3-4627-b7b7-bb48403e4d46
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io.ssl-redirect: '443'

@@ -12,7 +12,7 @@ Before you begin, you will need to have the following:
 - AWS CLI installed and configured on out machine.
 - Base64 tool for encoding files.
 - An AWS account.
-- A GitHub account.
+- A GitHub account. (Optional: only for ci/cd)
 - Domain (I used domain linked to cloudflare)
 
 ## Directory Structure
@@ -63,10 +63,10 @@ aws eks update-kubeconfig --name <CLUSTER_NAME> --region <REGION>
 
 Incase of our clutster we will use:
 ```
-aws eks update-kubeconfig --name demo --region <REGION> --kubeconfig <FILE_NAME>
+aws eks update-kubeconfig --name demo --region us-east-1
 ```
 
-Then ou can get the kubeconfig file by following the instructions provided by AWS (We will use it later for CI/CD).
+Then you can get the kubeconfig file by following the instructions provided by AWS (We will use it later for CI/CD).
 ```
 aws eks update-kubeconfig --name demo --region us-east-1 --kubeconfig kubeconfig
 ```
@@ -76,8 +76,27 @@ After you have out kubeconfig file, encode it in base64:
 ```bash
 base64 /path/to/out/kubeconfig > kubeconfig64
 ```
+### Step 4: Run the Kubernetes manifest files using `kubectl`
+Verify that kubectl is correctly configured by checking the cluster information:
+```
+kubectl cluster-info
+```
+Then Apply the Kubernetes manifest files:
+> **_NOTE:_** Make sure you are on the main dir
+```
+kubectl apply -f k8s
+```
+After that we need to verify that the resources have been created and are running:
+```
+kubectl get pods
+kubectl get services
+```
+Now you can Access the application:
+```
+kubectl get svc
+```
 
-### Step 4: GitHub Secrets Setup
+### Step 4: GitHub Secrets Setup (optional)
 
 Navigate to out GitHub repository and go to "Settings" -> "Secrets and variables" -> "Actions ". Here you need to add the following secrets:
 
@@ -85,10 +104,11 @@ Navigate to out GitHub repository and go to "Settings" -> "Secrets and variables
 - `AWS_SECRET_ACCESS_KEY`: The AWS secret access key for out account.
 - `KUBECONFIG`: The base64 encoded kubeconfig file from step 3 (kubeconfig64).
 
-### Step 5: CI/CD Setup
+### Step 5: CI/CD Setup (optional, you can deploy to aws without it)
 
 GitHub Actions is used for continuous integration and deployment. The workflows are automatically triggered when a push or pull request is made to the main branch. The `ci.yml` workflow builds the Docker image and pushes it to ECR. The `cd.yml` workflow deploys the application to the EKS cluster using the Kubernetes manifests.
 
+`NOTE:` Make sure to make ecr for the `Image`.
 `NOTE:` Make sure to update the `Image` from the `k8s/aspnet-app-deployment.yaml` file with the `ECR_URI` from out `AWS` or docker image.
 
 ## Running the Application
@@ -292,4 +312,4 @@ Apply the updated manifests to deploy the Redis container and the ASP.NET Core w
 With these changes, out ASP.NET Core web application will now use Redis as a caching layer, which can significantly improve the application's performance by reducing the need to access the database frequently for certain data. Redis caching helps store and retrieve data quickly, resulting in faster response times for out application.
 
 ## AWS Diagram
-![diagram](https://github.com/etahamad/widebot-devops-task/assets/53538887/0a4e3c1e-52b7-4345-b2be-57f25a770f14)
+![diagram](https://github.com/etahamad/widebot-devops-task/blob/main/assets/aws_diagram.svg)
