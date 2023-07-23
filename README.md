@@ -89,7 +89,6 @@ kubectl apply -f k8s
 After that we need to verify that the resources have been created and are running:
 ```
 kubectl get pods
-kubectl get services
 ```
 Now you can Access the application:
 ```
